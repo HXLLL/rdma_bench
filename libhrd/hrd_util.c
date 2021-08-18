@@ -99,8 +99,8 @@ struct ibv_device* hrd_resolve_port_index(struct hrd_ctrl_blk* cb,
       }
 
       if (ports_to_discover == 0) {
-        printf("HRD: port index %d resolved to device %d, port %d\n",
-               port_index, dev_i, port_i);
+        printf("HRD: port index %d resolved to device %d, name: %s, port %d\n",
+               port_index, dev_i, dev_list[dev_i]->name, port_i);
 
         /* Fill the device ID and device-local port ID */
         cb->device_id = dev_i;

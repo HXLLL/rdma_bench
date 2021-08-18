@@ -38,8 +38,8 @@ sleep 1
 
 blue "Starting worker threads"
 sudo LD_LIBRARY_PATH=/usr/local/lib/ -E \
-	numactl --cpunodebind=0 --membind=0 ./main \
+	numactl --cpunodebind=0 --membind=0 gdb --args ./main \
 	--is-client 0 \
 	--base-port-index 1 \
 	--num-server-ports 1 \
-	--postlist 1 &
+	--postlist 1
