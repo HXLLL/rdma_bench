@@ -184,7 +184,7 @@ void* run_client(void* arg) {
 
     ret = ibv_post_send(cb->conn_qp[0], &wr, &bad_send_wr);
     CPE(ret, "ibv_post_send error", ret);
-    // printf("Client %d: sending request index %lld\n", clt_gid, nb_tx);
+    printf("Client %d: sending request index %lld\n", clt_gid, nb_tx);
 
     rolling_iter++;
     nb_tx++;
