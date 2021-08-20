@@ -78,13 +78,15 @@ void* run_worker(void* arg) {
         .sl = 0,
         .src_path_bits = 0,
         /* port_num (> 1): device-local port for responses to this client */
-        .port_num = local_port_i + 1,
+        // .port_num = local_port_i + 1,
+        .port_num = local_port_i,
         .grh.dgid = clt_qp[i]->dgid,
         .grh.sgid_index = cb[i]->gid_index,
         .grh.hop_limit = 1,
     };
 
     ah[i] = ibv_create_ah(cb[cb_i]->pd, &ah_attr);
+    if (!ah[i]) fprintf(stderr, "%d, %s\n", errno, strerror(errno));
     assert(ah[i] != NULL);
   }
 
