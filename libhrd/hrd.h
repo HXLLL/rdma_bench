@@ -117,6 +117,9 @@ struct hrd_ctrl_blk {
   struct ibv_mr* dgram_buf_mr;
 
   struct ibv_wc* wc; /* Array of work completions */
+
+  union ibv_gid dgid;
+  int gid_index;
 };
 
 /* Major initialzation functions */

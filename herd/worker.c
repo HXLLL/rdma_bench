@@ -73,12 +73,15 @@ void* run_worker(void* arg) {
            wrkr_lid, i, NUM_CLIENTS, clt_qp[i]->lid);
 
     struct ibv_ah_attr ah_attr = {
-        .is_global = 0,
-        .dlid = clt_qp[i]->lid,
+        .is_global = 1,
+        // .dlid = clt_qp[i]->lid,
         .sl = 0,
         .src_path_bits = 0,
         /* port_num (> 1): device-local port for responses to this client */
         .port_num = local_port_i + 1,
+        .grh.dgid = clt_qp[i]->dgid,
+        .grh.sgid_index = cb[i]->gid_index,
+        .grh.hop_limit = 1,
     };
 
     ah[i] = ibv_create_ah(cb[cb_i]->pd, &ah_attr);
