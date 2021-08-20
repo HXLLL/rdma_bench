@@ -562,6 +562,7 @@ void hrd_publish_conn_qp(struct hrd_ctrl_blk* cb, int n, const char* qp_name) {
   qp_attr.rkey = cb->conn_buf_mr->rkey;
   qp_attr.lid = hrd_get_local_lid(cb->conn_qp[n]->context, cb->dev_port_id);
   qp_attr.qpn = cb->conn_qp[n]->qp_num;
+  qp_attr.dgid = hrd_get_gid(cb->ctx, cb->dev_port_id, IBV_GID_TYPE_ROCE_V1);
 
   hrd_publish(qp_attr.name, &qp_attr, sizeof(struct hrd_qp_attr));
 }
@@ -587,6 +588,7 @@ void hrd_publish_dgram_qp(struct hrd_ctrl_blk* cb, int n, const char* qp_name) {
   qp_attr.name[len] = 0; /* Add the null terminator */
   qp_attr.lid = hrd_get_local_lid(cb->dgram_qp[n]->context, cb->dev_port_id);
   qp_attr.qpn = cb->dgram_qp[n]->qp_num;
+  qp_attr.dgid = hrd_get_gid(cb->ctx, cb->dev_port_id, IBV_GID_TYPE_ROCE_V1);
 
   hrd_publish(qp_attr.name, &qp_attr, sizeof(struct hrd_qp_attr));
 }
