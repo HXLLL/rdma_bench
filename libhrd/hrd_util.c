@@ -277,7 +277,7 @@ uint16_t hrd_get_local_lid(struct ibv_context* ctx, int dev_port_id) {
   return attr.lid;
 }
 
-union ibv_gid hrd_get_gid(struct ibv_context* ctx, int dev_port_id, int roce_type) {
+union ibv_gid hrd_get_gid(struct ibv_context* ctx, int dev_port_id, int roce_type, int *index) {
   assert(ctx != NULL && dev_port_id >= 1);
 
   struct ibv_gid_entry entries[20];
@@ -292,6 +292,7 @@ union ibv_gid hrd_get_gid(struct ibv_context* ctx, int dev_port_id, int roce_typ
     }
     puts("");
     if (entries[i].gid_type == roce_type && entries[i].port_num == dev_port_id) {
+      if (index) *index = entries[i].gid_index;
       return entries[i].gid;
     }
   }
