@@ -36,7 +36,7 @@
 #define NUM_UD_QPS 1   /* Number of UD QPs per port */
 #define USE_POSTLIST 1
 
-#define UNSIG_BATCH 64 /* XXX Check if increasing this helps */
+#define UNSIG_BATCH 4 /* XXX Check if increasing this helps */
 #define UNSIG_BATCH_ (UNSIG_BATCH - 1)
 
 /* SHM key for the 1st request region created by master. ++ for other RRs.*/
