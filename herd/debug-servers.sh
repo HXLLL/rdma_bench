@@ -21,24 +21,24 @@ for i in `seq 0 28`; do
 	sudo ipcrm -M $key 2>/dev/null
 done
 
-# blue "Reset server QP registry"
-# sudo pkill memcached
-# memcached -l 0.0.0.0 1>/dev/null 2>/dev/null &
-# sleep 2
-# 
+blue "Reset server QP registry"
+sudo pkill memcached
+memcached -l 0.0.0.0 1>/dev/null 2>/dev/null &
+sleep 5
+
 blue "Starting master process"
 sudo LD_LIBRARY_PATH=/usr/local/lib/ -E \
-	numactl --cpunodebind=0 --membind=0 gdb --args ./main \
+	numactl --cpunodebind=0 --membind=0 ./main \
 	--master 1 \
 	--base-port-index 0 \
-	--num-server-ports 1
+	--num-server-ports 1 &
 
 # Give the master process time to create and register per-port request regions
 sleep 1
 
 blue "Starting worker threads"
 sudo LD_LIBRARY_PATH=/usr/local/lib/ -E \
-	numactl --cpunodebind=0 --membind=0 ./main \
+	numactl --cpunodebind=0 --membind=0 gdb --args ./main \
 	--is-client 0 \
 	--base-port-index 0 \
 	--num-server-ports 1 \
