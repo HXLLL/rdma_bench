@@ -28,15 +28,15 @@
 
 /* Configuration options */
 #define MAX_SERVER_PORTS 4
-#define NUM_WORKERS 1
-#define NUM_CLIENTS 1
+#define NUM_WORKERS 12
+#define NUM_CLIENTS 14
 
 /* Performance options */
-#define WINDOW_SIZE 2 /* Outstanding requests kept by each client */
+#define WINDOW_SIZE 32 /* Outstanding requests kept by each client */
 #define NUM_UD_QPS 1   /* Number of UD QPs per port */
 #define USE_POSTLIST 1
 
-#define UNSIG_BATCH 4 /* XXX Check if increasing this helps */
+#define UNSIG_BATCH 64 /* XXX Check if increasing this helps */
 #define UNSIG_BATCH_ (UNSIG_BATCH - 1)
 
 /* SHM key for the 1st request region created by master. ++ for other RRs.*/
