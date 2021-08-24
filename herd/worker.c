@@ -79,7 +79,7 @@ void* run_worker(void* arg) {
         .src_path_bits = 0,
         /* port_num (> 1): device-local port for responses to this client */
         // .port_num = local_port_i + 1,
-        .port_num = local_port_i,
+         .port_num = local_port_i + 1,
         .grh.dgid = clt_qp[i]->dgid,
         .grh.sgid_index = cb[i]->gid_index,
         .grh.hop_limit = 1,
