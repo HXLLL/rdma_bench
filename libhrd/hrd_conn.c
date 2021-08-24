@@ -358,7 +358,7 @@ void hrd_create_conn_qps(struct hrd_ctrl_blk* cb) {
     create_attr.send_cq = cb->conn_cq[i];
     create_attr.recv_cq = cb->conn_cq[i];
     create_attr.qp_type = cb->use_uc == 1 ? IBV_QPT_UC : IBV_QPT_RC;
-    create_attr.sq_sig_all = 1;
+    create_attr.sq_sig_all = 0;
 
     create_attr.cap.max_send_wr = HRD_Q_DEPTH;
     create_attr.cap.max_recv_wr = 1; /* We don't do RECVs on conn QPs */
