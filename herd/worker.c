@@ -81,7 +81,7 @@ void* run_worker(void* arg) {
         // .port_num = local_port_i + 1,
          .port_num = local_port_i + 1,
         .grh.dgid = clt_qp[i]->dgid,
-        .grh.sgid_index = cb[i]->gid_index,
+        .grh.sgid_index = cb[cb_i]->gid_index,
         .grh.hop_limit = 1,
     };
 
