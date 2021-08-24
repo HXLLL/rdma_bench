@@ -119,7 +119,6 @@ void* run_client(void* arg) {
     hrd_post_dgram_recv(cb->dgram_qp[0], (void*)cb->dgram_buf, DGRAM_BUF_SIZE,
                         cb->dgram_buf_mr->lkey);
   }
-
   while (1) {
     if (rolling_iter >= K_512) {
       clock_gettime(CLOCK_REALTIME, &end);
@@ -184,7 +183,7 @@ void* run_client(void* arg) {
 
     ret = ibv_post_send(cb->conn_qp[0], &wr, &bad_send_wr);
     CPE(ret, "ibv_post_send error", ret);
-    printf("Client %d: sending request index %lld\n", clt_gid, nb_tx);
+    // printf("Client %d: sending request index %lld\n", clt_gid, nb_tx);
 
     rolling_iter++;
     nb_tx++;
