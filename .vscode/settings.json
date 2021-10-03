@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "hrd.h": "c",
+        "assert.h": "c"
+    },
+    "files.exclude": {
+        "**/*.cmake": true,
+        "**/*.o": true
+    }
+}

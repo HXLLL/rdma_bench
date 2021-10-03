@@ -82,6 +82,7 @@ struct hrd_qp_attr {
 
   int lid;
   int qpn;
+  union ibv_gid dgid;
 };
 
 struct hrd_ctrl_blk {
@@ -116,6 +117,9 @@ struct hrd_ctrl_blk {
   struct ibv_mr* dgram_buf_mr;
 
   struct ibv_wc* wc; /* Array of work completions */
+
+  union ibv_gid dgid;
+  int gid_index;
 };
 
 /* Major initialzation functions */
@@ -137,6 +141,8 @@ struct ibv_device* hrd_resolve_port_index(struct hrd_ctrl_blk* cb,
                                           int port_index);
 
 uint16_t hrd_get_local_lid(struct ibv_context* ctx, int port_id);
+union ibv_gid hrd_get_gid(struct ibv_context* ctx, int dev_port_id, int roce_type, int *index);
+
 
 void hrd_create_conn_qps(struct hrd_ctrl_blk* cb);
 void hrd_create_dgram_qps(struct hrd_ctrl_blk* cb);
