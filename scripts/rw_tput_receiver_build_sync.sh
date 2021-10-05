@@ -1,4 +1,4 @@
-cd herd
+cd rw-tput-receiver
 make clean; make
 cd ..
 

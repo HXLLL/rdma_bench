@@ -120,23 +120,59 @@ void* run_worker(void* arg) {
   int poll_i, wr_i;
   assert(NUM_CLIENTS % num_server_ports == 0);
 
+  int a[200000],cnt=0;
+
   struct timespec start, end;
   clock_gettime(CLOCK_REALTIME, &start);
+
+  // long long last_cycle=hrd_get_cycles();
+  // long long temp_cycle, poll_cycle, send_cycle, mica_cycle, poll_cq_cycle;
+  // long long poll_make_cycle, poll_make_cycle2;
+
+  int nb_reports=0;
+
+  ProfilerStart("test_capture.prof");
 
   while (1) {
     if (unlikely(rolling_iter >= M_4)) {
       clock_gettime(CLOCK_REALTIME, &end);
       double seconds = (end.tv_sec - start.tv_sec) +
                        (double)(end.tv_nsec - start.tv_nsec) / 1000000000;
+      do {
+        char filename[20];
+        sprintf(filename, "a_output_%d.txt", wrkr_lid);
+        FILE* myoutput = fopen(filename, "w");
+        for (int i = 1; i <= cnt; ++i) {
+          fprintf(myoutput, "%d\n", a[i]);
+        }
+        fclose(myoutput);
+        fprintf(stderr, "output generated\n");
+        cnt = 0;
+      } while(0);
       printf(
           "main: Worker %d: %.2f IOPS. Avg per-port postlist = %.2f. "
           "HERD lookup fail rate = %.4f\n",
           wrkr_lid, M_4 / seconds, (double)nb_tx_tot / nb_post_send,
           (double)kv.num_get_fail / kv.num_get_op);
 
+
+      // double total_cycle=hrd_get_cycles()-last_cycle;
+      // printf("poll: %.2lf \t send: %.2lf \t mica: %.2lf \t poll_cq: %.2lf \t poll_make: %.2lf \t poll_make2: %.2lf \n",
+      //        poll_cycle / total_cycle, send_cycle / total_cycle,
+      //        mica_cycle / total_cycle, poll_cq_cycle / total_cycle, poll_make_cycle / total_cycle, poll_make_cycle2 / total_cycle);
+      //        printf("%lld %lld\n", poll_make_cycle, (long long)total_cycle);
+      // poll_cycle = send_cycle = mica_cycle = poll_make_cycle = poll_cq_cycle = poll_make_cycle2 = 0;
+      // last_cycle = hrd_get_cycles();
+
       rolling_iter = 0;
       nb_tx_tot = 0;
       nb_post_send = 0;
+
+      ++nb_reports;
+      if (nb_reports == 10) {
+        ProfilerStop();
+      }
+  
 
       clock_gettime(CLOCK_REALTIME, &start);
     }
@@ -156,6 +192,7 @@ void* run_worker(void* arg) {
             __builtin_prefetch((void *) &req_buf[req_offset], 0, 2);
     }*/
 
+    // BEGIN_TIMING(poll_cycle);
     for (poll_i = 0; poll_i < NUM_CLIENTS; poll_i++) {
       /*
        * This cycling of @clt_i and @cb_i needs to be before polling. This
@@ -203,9 +240,19 @@ void* run_worker(void* arg) {
 
       wr[wr_i].send_flags =
           ((nb_tx[cb_i][ud_qp_i] & UNSIG_BATCH_) == 0) ? IBV_SEND_SIGNALED : 0;
+
+      // BEGIN_TIMING(poll_make_cycle);
+      // END_TIMING(poll_make_cycle);
+
+      // BEGIN_TIMING(poll_make_cycle2);
+      // END_TIMING(poll_make_cycle2);
+
+      // BEGIN_TIMING(poll_cq_cycle);
       if ((nb_tx[cb_i][ud_qp_i] & UNSIG_BATCH_) == UNSIG_BATCH_) {
         hrd_poll_cq(cb[cb_i]->dgram_send_cq[ud_qp_i], 1, &wc);
       }
+      // END_TIMING(poll_cq_cycle);
+
       wr[wr_i].send_flags |= IBV_SEND_INLINE;
 
       HRD_MOD_ADD(ws[clt_i], WINDOW_SIZE);
@@ -220,9 +267,15 @@ void* run_worker(void* arg) {
         break;
       }
     }
+    // END_TIMING(poll_cycle);
 
+    if (cnt <= 10000) a[++cnt] = wr_i;
+
+    // BEGIN_TIMING(mica_cycle);
     mica_batch_op(&kv, wr_i, op_ptr_arr, resp_arr);
+    // END_TIMING(mica_cycle);
 
+    // BEGIN_TIMING(send_cycle);
     /*
      * Fill in the computed @val_ptr's. For non-postlist mode, this loop
      * must go from 0 to (@wr_i - 1) to follow the signaling logic.
@@ -254,6 +307,7 @@ void* run_worker(void* arg) {
         nb_post_send++;
       }
     }
+    // END_TIMING(send_cycle);
 
     /* Use a different UD QP for the next postlist */
     HRD_MOD_ADD(ud_qp_i, NUM_UD_QPS);

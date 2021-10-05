@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "./scripts/herd_build_sync.sh",
+            "command": "./scripts/rw_tput_receiver_build_sync.sh",
             "args": [
             ],
             "group": {

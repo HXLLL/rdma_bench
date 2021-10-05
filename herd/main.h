@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <gperftools/profiler.h>
 
 /*
  * The polling logic in HERD requires the following:
@@ -14,10 +15,12 @@
 #define HERD_OP_GET (MICA_OP_GET + HERD_MICA_OFFSET)
 #define HERD_OP_PUT (MICA_OP_PUT + HERD_MICA_OFFSET)
 
-#define HERD_NUM_BKTS (2 * 1024 * 1024)
+//#define HERD_NUM_BKTS (2 * 1024 * 1024)
+#define HERD_NUM_BKTS (2 * 1024 * 128)
 #define HERD_LOG_CAP (1024 * 1024 * 1024)
 
-#define HERD_NUM_KEYS (8 * 1024 * 1024)
+//#define HERD_NUM_KEYS (8 * 1024 * 1024)
+#define HERD_NUM_KEYS (8 * 1024 * 128)
 #define HERD_VALUE_SIZE 32
 
 /* Request sizes */
@@ -28,12 +31,12 @@
 
 /* Configuration options */
 #define MAX_SERVER_PORTS 4
-#define NUM_WORKERS 12
-#define NUM_CLIENTS 70
+#define NUM_WORKERS 1
+#define NUM_CLIENTS 48
 
 /* Performance options */
-#define WINDOW_SIZE 32 /* Outstanding requests kept by each client */
-#define NUM_UD_QPS 1   /* Number of UD QPs per port */
+#define WINDOW_SIZE 64 /* Outstanding requests kept by each client */
+#define NUM_UD_QPS 2   /* Number of UD QPs per port */
 #define USE_POSTLIST 1
 
 #define UNSIG_BATCH 64 /* XXX Check if increasing this helps */
@@ -44,6 +47,27 @@
 #define RR_SIZE (16 * 1024 * 1024) /* Request region size */
 #define OFFSET(wn, cn, ws) \
   ((wn * NUM_CLIENTS * WINDOW_SIZE) + (cn * WINDOW_SIZE) + ws)
+
+#define BEGIN_TIMING(tot)   long long tot##temp_cycle=hrd_get_cycles()
+#define RESUME_TIMING(tot)   tot##temp_cycle=hrd_get_cycles()
+#define END_TIMING(tot)     ((tot) += hrd_get_cycles() - tot##temp_cycle)
+
+#define BEGIN_TIMING2(tot)   asm volatile("rdtsc" : "=a"(temp_cycle))
+#define RESUME_TIMING2(tot)   temp_cycle=my_get_cycles()
+#define END_TIMING2(tot)     ((tot) += my_get_cycles() - temp_cycle)
+
+static inline long long my_get_cycles() {
+#ifdef __x86_64__
+  unsigned val;
+  asm volatile("rdtsc" : "=a"(val));
+  return val;
+#elif __aarch64__
+  unsigned long long val;
+  asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+  return val;
+#endif
+}
+
 
 struct thread_params {
   int id;

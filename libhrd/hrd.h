@@ -215,12 +215,18 @@ static inline uint32_t hrd_fastrand(uint64_t* seed) {
 }
 
 static inline long long hrd_get_cycles() {
+#ifdef __x86_64__
   unsigned low, high;
   unsigned long long val;
   asm volatile("rdtsc" : "=a"(low), "=d"(high));
   val = high;
   val = (val << 32) | low;
   return val;
+#elif __aarch64__
+  unsigned long long val;
+  asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+  return val;
+#endif
 }
 
 static inline int hrd_is_power_of_2(uint32_t n) { return n && !(n & (n - 1)); }

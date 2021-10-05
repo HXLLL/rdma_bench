@@ -114,6 +114,9 @@ void* run_client(void* arg) {
   struct timespec start, end;
   clock_gettime(CLOCK_REALTIME, &start);
 
+  long long last_cycle=hrd_get_cycles();
+  long long temp_cycle, poll_cq_cycle, send_cycle, replete_cycle;
+
   /* Fill the RECV queue */
   for (i = 0; i < WINDOW_SIZE; i++) {
     hrd_post_dgram_recv(cb->dgram_qp[0], (void*)cb->dgram_buf, DGRAM_BUF_SIZE,
@@ -128,11 +131,19 @@ void* run_client(void* arg) {
       printf("main: Client %d: %.2f IOPS. nb_tx = %lld\n", clt_gid,
              K_512 / seconds, nb_tx);
 
+      double total_cycle=hrd_get_cycles()-last_cycle;
+      printf("poll_cq: %.2lf \t send: %.2lf \t replete: %.2lf \t \n",
+             poll_cq_cycle / total_cycle, send_cycle / total_cycle,
+             replete_cycle / total_cycle);
+      poll_cq_cycle = send_cycle = replete_cycle = 0;
+      last_cycle = hrd_get_cycles();
+
       rolling_iter = 0;
 
       clock_gettime(CLOCK_REALTIME, &start);
     }
 
+    BEGIN_TIMING(replete_cycle);
     /* Re-fill depleted RECVs */
     if (nb_tx % WINDOW_SIZE == 0 && nb_tx > 0) {
       for (i = 0; i < WINDOW_SIZE; i++) {
@@ -148,11 +159,15 @@ void* run_client(void* arg) {
       ret = ibv_post_recv(cb->dgram_qp[0], &recv_wr[0], &bad_recv_wr);
       CPE(ret, "ibv_post_recv error", ret);
     }
+    END_TIMING(replete_cycle);
 
+    BEGIN_TIMING(poll_cq_cycle);
     if (nb_tx % WINDOW_SIZE == 0 && nb_tx > 0) {
       hrd_poll_cq(cb->dgram_recv_cq[0], WINDOW_SIZE, wc);
     }
+    END_TIMING(poll_cq_cycle);
 
+    BEGIN_TIMING(send_cycle);
     wn = hrd_fastrand(&seed) % NUM_WORKERS; /* Choose a worker */
     int is_update = (hrd_fastrand(&seed) % 100 < update_percentage) ? 1 : 0;
 
@@ -185,6 +200,7 @@ void* run_client(void* arg) {
     ret = ibv_post_send(cb->conn_qp[0], &wr, &bad_send_wr);
     CPE(ret, "ibv_post_send error", ret);
     // printf("Client %d: sending request index %lld\n", clt_gid, nb_tx);
+    END_TIMING(send_cycle);
 
     rolling_iter++;
     nb_tx++;
