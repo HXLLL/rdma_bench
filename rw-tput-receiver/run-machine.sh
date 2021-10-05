@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 source $(dirname $0)/../scripts/utils.sh
 source $(dirname $0)/../scripts/mlx_env.sh
-export HRD_REGISTRY_IP="10.10.1.1"
+export HRD_REGISTRY_IP="10.59.7.159"
 
 drop_shm
 exe="../build/rw-tput-receiver"
 chmod +x $exe
 
-num_threads=1			# Threads per client machine
+num_threads=8			# Threads per client machine
 blue "Running $num_threads client threads"
 
 # Check number of arguments
@@ -31,7 +31,8 @@ flags="\
 	--machine_id $1 \
 	--size 32 \
 	--postlist 4 \
-  --do_read 0
+  --do_read 0\
+  --size=16
 "
 
 # Check for non-gdb mode

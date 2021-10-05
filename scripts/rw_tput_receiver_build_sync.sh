@@ -1,6 +1,4 @@
-cd rw-tput-receiver
-make clean; make
-cd ..
+make rw-tput-receiver
 
 rsync -a --delete /root/rdma_bench/ cu02:/root/rdma_bench
 rsync -a --delete /root/rdma_bench/ cu03:/root/rdma_bench

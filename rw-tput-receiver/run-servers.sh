@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 source $(dirname $0)/../scripts/utils.sh
 source $(dirname $0)/../scripts/mlx_env.sh
-export HRD_REGISTRY_IP="10.10.1.1"
+export HRD_REGISTRY_IP="10.59.7.159"
 
 drop_shm
 exe="../build/rw-tput-receiver"
 chmod +x $exe
 
-num_server_threads=1
+num_server_threads=24
 
 blue "Reset server QP registry"
 sudo pkill memcached
 
 # Spawn memcached, but wait for it to start
-memcached -l 0.0.0.0 1>/dev/null 2>/dev/null &
+memcached -u root -l 0.0.0.0 1>/dev/null 2>/dev/null &
 while ! nc -z localhost 11211; do sleep .1; done
 echo "Server: memcached server is open for business on port 11211"
 

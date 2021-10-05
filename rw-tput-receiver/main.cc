@@ -71,6 +71,7 @@ void run_client(thread_params_t* params) {
   size_t srv_gid = clt_gid;     // One-to-one connections
   size_t clt_lid = params->id % FLAGS_num_threads;  // Local ID of this client
   size_t ib_port_index = FLAGS_dual_port == 0 ? 0 : (srv_gid % 2) * 2;
+  uint64_t myseed=clt_gid;
 
   hrd_conn_config_t conn_config;
   conn_config.num_qps = 1;
@@ -123,6 +124,7 @@ void run_client(thread_params_t* params) {
   rt_assert(stride * FLAGS_postlist <= kAppBufSize);
 
   auto opcode = FLAGS_do_read == 0 ? IBV_WR_RDMA_WRITE : IBV_WR_RDMA_READ;
+  int cnt_rnd=0;
 
   while (true) {
     if (rolling_iter >= KB(512)) {
@@ -130,7 +132,7 @@ void run_client(thread_params_t* params) {
       double seconds = (end.tv_sec - start.tv_sec) +
                        (end.tv_nsec - start.tv_nsec) / 1000000000.0;
       double tput_mrps = rolling_iter / (seconds * 1000000);
-      printf("main: Client %zu: %.2f M/s\n", clt_gid, tput_mrps);
+      // printf("main: Client %zu: %.2f M/s\n", clt_gid, tput_mrps);
       rolling_iter = 0;
 
       // Per-machine stats
@@ -162,7 +164,10 @@ void run_client(thread_params_t* params) {
       sgl[w_i].length = FLAGS_size;
       sgl[w_i].lkey = cb->conn_buf_mr->lkey;
 
-      wr[w_i].wr.rdma.remote_addr = srv_qp->buf_addr + (stride * w_i);
+      // wr[w_i].wr.rdma.remote_addr = srv_qp->buf_addr + (stride * w_i);
+      wr[w_i].wr.rdma.remote_addr = srv_qp->buf_addr + (stride * (hrd_fastrand(&myseed)%1000));
+      // wr[w_i].wr.rdma.remote_addr = srv_qp->buf_addr + (stride * cnt_rnd);
+      // if (cnt_rnd > 50000) cnt_rnd = 0;
       wr[w_i].wr.rdma.rkey = srv_qp->rkey;
 
       nb_tx++;
