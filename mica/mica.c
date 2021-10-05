@@ -309,6 +309,8 @@ uint128* mica_gen_keys(int n) {
   uint128* key_arr = malloc(n * sizeof(uint128));
   assert(key_arr != NULL);
 
+  printf("key generated");
+
   for (i = 0; i < n; i++) {
     key_arr[i] = CityHash128((char*)&i, 4);
   }

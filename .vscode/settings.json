@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "hrd.h": "c",
-        "assert.h": "c"
+        "assert.h": "c",
+        "mica.h": "c"
     },
     "files.exclude": {
         "**/*.cmake": true,

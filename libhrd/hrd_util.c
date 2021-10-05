@@ -66,6 +66,7 @@ struct ibv_device* hrd_resolve_port_index(struct hrd_ctrl_blk* cb,
   int ports_to_discover = port_index;
   int dev_i;
 
+  printf("%d\n", num_devices);
   for (dev_i = 0; dev_i < num_devices; dev_i++) {
     struct ibv_context* ctx = ibv_open_device(dev_list[dev_i]);
     CPE(!ctx, "HRD: Couldn't open device", 0);
@@ -287,10 +288,6 @@ union ibv_gid hrd_get_gid(struct ibv_context* ctx, int dev_port_id, int roce_typ
     printf("Error: %s", strerror(-n));
   }
   for (int i=0;i!=n;++i) {
-    for (int j=0;j!=16;++j) {
-      printf("%2x:", entries[i].gid.raw[j]);
-    }
-    puts("");
     if (entries[i].gid_type == roce_type && entries[i].port_num == dev_port_id) {
       if (index) *index = entries[i].gid_index;
       return entries[i].gid;
