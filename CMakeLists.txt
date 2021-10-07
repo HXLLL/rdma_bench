@@ -5,7 +5,7 @@ set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_C_LINK_EXECUTABLE g++)
 add_definitions(-std=c++11)
 
-add_definitions(-Wall -Wextra -pedantic)
+add_definitions(-Wall -Wextra -pedantic -fpermissive)
 add_definitions(-Wsign-conversion)
 add_definitions(-Wold-style-cast)
 
@@ -78,6 +78,7 @@ set(HRD_SOURCES
 set(BENCHMARKS
   rc-swarm
   rw-tput-sender
+  rw-tput-receiver
   ud-sender
   ud-receiver
   ss-echo
@@ -91,6 +92,3 @@ foreach(bench IN LISTS BENCHMARKS)
   add_executable(${bench} ${bench}/main.cc ${HRD_SOURCES})
   target_link_libraries(${bench} ${GTEST_LIBRARIES} ${LIBRARIES})
 endforeach()
-
-add_executable(rw-tput-receiver rw-tput-receiver/main.cc rw-tput-receiver/server.cc rw-tput-receiver/client.cc ${HRD_SOURCES})
-target_link_libraries(rw-tput-receiver ${GTEST_LIBRARIES} ${LIBRARIES})

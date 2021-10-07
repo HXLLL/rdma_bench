@@ -4,7 +4,7 @@ source $(dirname $0)/../scripts/mlx_env.sh
 export HRD_REGISTRY_IP="10.59.7.159"
 
 drop_shm
-exe="../build/rw-tput-receiver"
+exe="./main"
 chmod +x $exe
 
 num_server_threads=24
