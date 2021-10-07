@@ -45,8 +45,6 @@
 /* SHM key for the 1st request region created by master. ++ for other RRs.*/
 #define MASTER_SHM_KEY 24
 #define RR_SIZE (16 * 1024 * 1024) /* Request region size */
-#define OFFSET(wn, cn, ws) \
-  ((wn * NUM_CLIENTS * WINDOW_SIZE) + (cn * WINDOW_SIZE) + ws)
 
 #define BEGIN_TIMING(tot)   long long tot##temp_cycle=hrd_get_cycles()
 #define RESUME_TIMING(tot)   tot##temp_cycle=hrd_get_cycles()

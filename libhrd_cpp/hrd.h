@@ -21,6 +21,8 @@
 #include <string>
 #include <thread>
 
+#include "hrd_sizes.h"
+
 static constexpr size_t kRoCE = false;  ///< Use RoCE
 static constexpr size_t kHrdMaxInline = 16;
 static constexpr size_t kHrdSQDepth = 128;   ///< Depth of all SEND queues
@@ -46,6 +48,14 @@ static constexpr size_t kHrdQPNameSize = 200;
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 #define _unused(x) ((void)(x))  // Make production build happy
+
+#define HRD_MOD_ADD(x, N) \
+  do {                    \
+    x = x + 1;            \
+    if (x == N) {         \
+      x = 0;              \
+    }                     \
+  } while (0)
 
 /// Check a condition at runtime. If the condition is false, throw exception.
 static inline void rt_assert(bool condition, std::string throw_str) {
@@ -84,7 +94,7 @@ struct hrd_qp_attr_t {
   union ibv_gid gid;  ///< GID, used for only RoCE
 
   // Info about the RDMA buffer associated with this QP
-  uintptr_t buf_addr;
+  volatile uint8_t* buf_addr;
   uint32_t buf_size;
   uint32_t rkey;
 };
@@ -240,12 +250,17 @@ static inline uint32_t hrd_fastrand(uint64_t* seed) {
   *seed = *seed * 1103515245 + 12345;
   return static_cast<uint32_t>((*seed) >> 32);
 }
-
 static inline size_t hrd_get_cycles() {
+#ifdef __x86_64__
   uint64_t rax;
   uint64_t rdx;
   asm volatile("rdtsc" : "=a"(rax), "=d"(rdx));
   return static_cast<size_t>((rdx << 32) | rax);
+#elif __aarch64__
+  unsigned long long val;
+  asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+  return val;
+#endif
 }
 
 static inline int hrd_is_power_of_2(uint64_t n) { return n && !(n & (n - 1)); }

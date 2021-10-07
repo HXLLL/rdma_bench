@@ -519,7 +519,7 @@ void hrd_publish_conn_qp(hrd_ctrl_blk_t* cb, size_t n, const char* qp_name) {
   qp_attr.qpn = cb->conn_qp[n]->qp_num;
   if (kRoCE) qp_attr.gid = cb->resolve.gid;
 
-  qp_attr.buf_addr = reinterpret_cast<uint64_t>(cb->conn_buf);
+  qp_attr.buf_addr = (cb->conn_buf);
   qp_attr.buf_size = cb->conn_config.buf_size;
   qp_attr.rkey = cb->conn_buf_mr->rkey;
 

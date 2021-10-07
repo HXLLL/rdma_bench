@@ -77,7 +77,6 @@ set(HRD_SOURCES
 
 set(BENCHMARKS
   rc-swarm
-  rw-tput-receiver
   rw-tput-sender
   ud-sender
   ud-receiver
@@ -92,3 +91,6 @@ foreach(bench IN LISTS BENCHMARKS)
   add_executable(${bench} ${bench}/main.cc ${HRD_SOURCES})
   target_link_libraries(${bench} ${GTEST_LIBRARIES} ${LIBRARIES})
 endforeach()
+
+add_executable(rw-tput-receiver rw-tput-receiver/main.cc rw-tput-receiver/server.cc rw-tput-receiver/client.cc ${HRD_SOURCES})
+target_link_libraries(rw-tput-receiver ${GTEST_LIBRARIES} ${LIBRARIES})

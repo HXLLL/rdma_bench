@@ -13,9 +13,9 @@ blue "Reset server QP registry"
 sudo pkill memcached
 
 # Spawn memcached, but wait for it to start
-memcached -u root -l 0.0.0.0 1>/dev/null 2>/dev/null &
-while ! nc -z localhost 11211; do sleep .1; done
-echo "Server: memcached server is open for business on port 11211"
+# memcached -u root -l 0.0.0.0 1>/dev/null 2>/dev/null &
+# while ! nc -z localhost 11211; do sleep .1; done
+# echo "Server: memcached server is open for business on port 11211"
 
 blue "Starting $num_server_threads server threads"
 
@@ -23,7 +23,8 @@ flags="
 	--num_threads $num_server_threads \
 	--dual_port 0 \
   --use_uc 0 \
-  --is_client 0
+  --is_client 0 \
+  --size=64
 "
 
 # Check for non-gdb mode

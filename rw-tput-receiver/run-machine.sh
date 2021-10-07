@@ -4,7 +4,7 @@ source $(dirname $0)/../scripts/mlx_env.sh
 export HRD_REGISTRY_IP="10.59.7.159"
 
 drop_shm
-exe="../build/rw-tput-receiver"
+exe="./main"
 chmod +x $exe
 
 num_threads=8			# Threads per client machine
@@ -29,10 +29,9 @@ flags="\
 	--use_uc 0 \
 	--is_client 1 \
 	--machine_id $1 \
-	--size 32 \
 	--postlist 4 \
   --do_read 0\
-  --size=16
+  --size=48
 "
 
 # Check for non-gdb mode
